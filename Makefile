@@ -1,7 +1,7 @@
 VERSION = 4
 PATCHLEVEL = 9
 SUBLEVEL = 45
-EXTRAVERSION =-mccore-atking
+EXTRAVERSION =-mccore-reny2-cepedd
 NAME = Roaring Lionus
 
 # *DOCUMENTATION*
