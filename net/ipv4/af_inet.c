@@ -104,6 +104,7 @@
 #include <net/ip_fib.h>
 #include <net/inet_connection_sock.h>
 #include <net/tcp.h>
+#include <net/rpitcp.h>
 #include <net/udp.h>
 #include <net/udplite.h>
 #include <net/ping.h>
@@ -1004,6 +1005,15 @@ static struct inet_protosw inetsw_array[] =
 	},
 
 	{
+		.type =       SOCK_STREAM,
+		.protocol =   IPPROTO_RPITCP,
+		.prot =       &rpitcp_prot,
+		.ops =        &inet_stream_ops,
+		.flags =      INET_PROTOSW_PERMANENT |
+			      INET_PROTOSW_ICSK,
+	},
+
+	{
 		.type =       SOCK_DGRAM,
 		.protocol =   IPPROTO_UDP,
 		.prot =       &udp_prot,
@@ -1774,9 +1784,13 @@ static int __init inet_init(void)
 	if (rc)
 		goto out;
 
-	rc = proto_register(&udp_prot, 1);
+	rc = proto_register(&rpitcp_prot, 1);
 	if (rc)
 		goto out_unregister_tcp_proto;
+
+	rc = proto_register(&udp_prot, 1);
+	if (rc)
+		goto out_unregister_rpitcp_proto;
 
 	rc = proto_register(&raw_prot, 1);
 	if (rc)
@@ -1882,6 +1896,8 @@ out_unregister_raw_proto:
 	proto_unregister(&raw_prot);
 out_unregister_udp_proto:
 	proto_unregister(&udp_prot);
+out_unregister_rpitcp_proto:
+	proto_unregister(&rpitcp_prot);
 out_unregister_tcp_proto:
 	proto_unregister(&tcp_prot);
 	goto out;
