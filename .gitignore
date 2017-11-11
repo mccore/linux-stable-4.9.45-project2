@@ -1,3 +1,10 @@
 cscope.in.out
 cscope.out
 cscope.po.out
+*.o
+*.cmd
+*.builtin
+*.d
+*.order
+*.ko
+*.so
