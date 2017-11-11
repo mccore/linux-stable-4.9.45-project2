@@ -1590,6 +1590,15 @@ static const struct net_protocol tcp_protocol = {
 	.icmp_strict_tag_validation = 1,
 };
 
+static const struct net_protocol rpitcp_protocol = {
+	.early_demux	=	tcp_v4_early_demux,
+	.handler	=	tcp_v4_rcv,
+	.err_handler	=	tcp_v4_err,
+	.no_policy	=	1,
+	.netns_ok	=	1,
+	.icmp_strict_tag_validation = 1,
+};
+
 static const struct net_protocol udp_protocol = {
 	.early_demux =	udp_v4_early_demux,
 	.handler =	udp_rcv,
@@ -1820,6 +1829,8 @@ static int __init inet_init(void)
 		pr_crit("%s: Cannot add UDP protocol\n", __func__);
 	if (inet_add_protocol(&tcp_protocol, IPPROTO_TCP) < 0)
 		pr_crit("%s: Cannot add TCP protocol\n", __func__);
+	if (inet_add_protocol(&rpitcp_protocol, IPPROTO_RPITCP) < 0)
+		pr_crit("%s: Cannot add RPITCP protocol\n", __func__);
 #ifdef CONFIG_IP_MULTICAST
 	if (inet_add_protocol(&igmp_protocol, IPPROTO_IGMP) < 0)
 		pr_crit("%s: Cannot add IGMP protocol\n", __func__);
