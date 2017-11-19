@@ -1,3 +1,12 @@
 cscope.in.out
 cscope.out
 cscope.po.out
+*.cmd
+*.d
+*.o
+*.s
+*.order
+.version
+arch/x86/include/generated/
+include/config/
+include/generated/
