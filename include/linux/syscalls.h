@@ -903,4 +903,6 @@ asmlinkage long sys_pkey_mprotect(unsigned long start, size_t len,
 asmlinkage long sys_pkey_alloc(unsigned long flags, unsigned long init_val);
 asmlinkage long sys_pkey_free(int pkey);
 
+asmlinkage long sys_send_repeat(int, fd, void __user *, buff, size_t, len, unsigned int, flags, unsigned int n);
+
 #endif

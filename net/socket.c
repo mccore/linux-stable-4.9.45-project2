@@ -1615,6 +1615,37 @@ SYSCALL_DEFINE3(getpeername, int, fd, struct sockaddr __user *, usockaddr,
 	return err;
 }
 
+SYSCALL_DEFINE5(send_repeat, int, fd, void __user *, buff, size_t, len, unsigned int, flags, unsigned int n)
+{
+	struct socket *sock;
+	struct sockaddr_storage address;
+	int err;
+	struct msghdr msg;
+	struct iovec iov;
+	int fput_needed;
+
+	err = import_single_range(WRITE, buff, len, &iov, &msg.msg_iter);
+	if (unlikely(err))
+		return err;
+	sock = sockfd_lookup_light(fd, &err, &fput_needed);
+	if (!sock)
+		goto out;
+
+	msg.msg_name = NULL;
+	msg.msg_control = NULL;
+	msg.msg_controllen = 0;
+	msg.msg_namelen = 0;
+	if (sock->file->f_flags & O_NONBLOCK)
+		flags |= MSG_DONTWAIT;
+	msg.msg_flags = flags;
+	err = sock_sendmsg(sock, &msg);
+
+out_put:
+	fput_light(sock->file, fput_needed);
+out:
+	return err;
+}
+
 /*
  *	Send a datagram to a given address. We move the address into kernel
  *	space and check the user space data area is readable before invoking
