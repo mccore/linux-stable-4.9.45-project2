@@ -4,7 +4,7 @@
  *  Copyright (C) 1991, 1992  Linus Torvalds
  */
 
-#include <linux/slab.h> 
+#include <linux/slab.h>
 #include <linux/stat.h>
 #include <linux/fcntl.h>
 #include <linux/file.h>
@@ -596,25 +596,6 @@ SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
 	return ret;
 }
 
-SYSCALL_DEFINE3(read_lines_array, unsigned int, fd, char __user **, buf, size_t, count)
-{
-	struct fd f = fdget_pos(fd);
-	ssize_t array_ret = 0;
-
-	if (f.file) {
-		loff_t pos = file_pos_read(f.file);
-		ssize_t ret = -EBADF;
-		while((ret = vfs_read(f.file, buf[array_ret], count, &pos)) > 0)
-		{
-			if (ret >= 0)
-				file_pos_write(f.file, pos);
-			fdput_pos(f);
-			array_ret += 1;
-		}
-	}
-	return array_ret;
-}
-
 SYSCALL_DEFINE3(write, unsigned int, fd, const char __user *, buf,
 		size_t, count)
 {
@@ -664,7 +645,7 @@ SYSCALL_DEFINE4(pwrite64, unsigned int, fd, const char __user *, buf,
 	f = fdget(fd);
 	if (f.file) {
 		ret = -ESPIPE;
-		if (f.file->f_mode & FMODE_PWRITE)  
+		if (f.file->f_mode & FMODE_PWRITE)
 			ret = vfs_write(f.file, buf, count, &pos);
 		fdput(f);
 	}
