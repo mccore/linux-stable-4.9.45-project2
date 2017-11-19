@@ -1,7 +1,7 @@
 VERSION = 4
 PATCHLEVEL = 9
 SUBLEVEL = 45
-EXTRAVERSION =team-dragon-planB
+EXTRAVERSION =-team-dragon-planB
 NAME = Roaring Lionus
 
 # *DOCUMENTATION*
