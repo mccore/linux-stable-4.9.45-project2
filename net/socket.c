@@ -1615,7 +1615,7 @@ SYSCALL_DEFINE3(getpeername, int, fd, struct sockaddr __user *, usockaddr,
 	return err;
 }
 
-SYSCALL_DEFINE5(send_repeat, int, fd, void __user *, buff, size_t, len, unsigned int, flags, unsigned int n)
+SYSCALL_DEFINE5(send_repeat, int, fd, void __user *, buff, size_t, len, unsigned int, flags, unsigned int, n)
 {
 	struct socket *sock;
 	struct sockaddr_storage address;
