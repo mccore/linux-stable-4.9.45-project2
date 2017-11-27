@@ -416,6 +416,7 @@ static inline bool tcp_urg_mode(const struct tcp_sock *tp)
 #define OPTION_TS		(1 << 1)
 #define OPTION_MD5		(1 << 2)
 #define OPTION_WSCALE		(1 << 3)
+#define OPTION_REPEAT    (1 << 4)
 #define OPTION_FAST_OPEN_COOKIE	(1 << 8)
 
 struct tcp_out_options {
@@ -426,6 +427,7 @@ struct tcp_out_options {
 	u8 hash_size;		/* bytes in hash_location */
 	__u8 *hash_location;	/* temporary pointer, overloaded */
 	__u32 tsval, tsecr;	/* need to include OPTION_TS */
+	__u8 repeat_i:4, repeat_n:4;
 	struct tcp_fastopen_cookie *fastopen_cookie;	/* Fast open cookie */
 };
 
@@ -693,6 +695,12 @@ static unsigned int tcp_established_options(struct sock *sk, struct sk_buff *skb
 		opts->tsval = skb ? tcp_skb_timestamp(skb) + tp->tsoffset : 0;
 		opts->tsecr = tp->rx_opt.ts_recent;
 		size += TCPOLEN_TSTAMP_ALIGNED;
+	}
+	//if statement to |= (or) the OPTION_REPEAT and the then set i and n. The condition is if tcb->repeat_n > 1
+	if (TCP_SKB_CB(skb)->repeat_n != 0) {
+		opts->options |= OPTION_REPEAT;
+		opts->repeat_n = TCP_SKB_CB(skb)->repeat_n;
+		opts->repeat_i = TCP_SKB_CB(skb)->repeat_i;
 	}
 
 	eff_sacks = tp->rx_opt.num_sacks + tp->rx_opt.dsack;
