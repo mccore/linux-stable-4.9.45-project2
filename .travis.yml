@@ -10,4 +10,7 @@ addons:
       - gcc-5
 cache: ccache
 
-script: make -j3 CC="ccache gcc-5"
+script:
+  - ccache -M 0
+  - make -j3 CC="ccache gcc-5"
+  - ccache -s
