@@ -1188,7 +1188,9 @@ restart:
 			copy = max - skb->len;
 		}
 
-		if (copy <= 0 || !tcp_skb_can_collapse_to(skb) || msg->msg_repeat > 1) {
+		// TODO: Don't use msg->msg_repeat directly here. Find a better place to set skb cb -> eor, 
+		// and let tcp_skb_can_collapse_to to do the work.
+		if (copy <= 0 || !tcp_skb_can_collapse_to(skb) || msg->msg_repeat) {
 			bool first_skb;
 
 new_segment:
@@ -1229,7 +1231,7 @@ new_segment:
 				TCP_SKB_CB(skb)->sacked |= TCPCB_REPAIRED;
 
 			//TODO: figure out a way to change i. Possibly using goto hacks
-			if (msg->msg_repeat > 1) {
+			if (msg->msg_repeat) {
 				TCP_SKB_CB(skb)->repeat_i = 1;
 				TCP_SKB_CB(skb)->repeat_n = msg->msg_repeat;
 			}
