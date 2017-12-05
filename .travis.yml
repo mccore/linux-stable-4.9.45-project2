@@ -1,0 +1,13 @@
+sudo: false
+dist: trusty
+language: c
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-5
+cache: ccache
+
+script: make -j3 CC="ccache gcc-5"
