@@ -705,7 +705,7 @@ static unsigned int tcp_established_options(struct sock *sk, struct sk_buff *skb
 		size += TCPOLEN_TSTAMP_ALIGNED;
 	}
 	//if statement to |= (or) the OPTION_REPEAT and the then set i and n. The condition is if tcb->repeat_n > 1
-	if (TCP_SKB_CB(skb)->repeat_n != 0) {
+	if (skb && TCP_SKB_CB(skb)->repeat_n != 0) {
 		opts->options |= OPTION_REPEAT;
 		opts->repeat_n = TCP_SKB_CB(skb)->repeat_n;
 		opts->repeat_i = TCP_SKB_CB(skb)->repeat_i;
