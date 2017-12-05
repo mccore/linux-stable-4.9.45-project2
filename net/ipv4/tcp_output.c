@@ -537,6 +537,14 @@ static void tcp_options_write(__be32 *ptr, struct tcp_sock *tp,
 		}
 		ptr += (len + 3) >> 2;
 	}
+
+	if (OPTION_REPEAT & options) {
+		*ptr++ = htonl( (TCPOPT_NOP     << 24) |
+				(TCPOPT_REPEAT  <<  16) |
+				(TCPOLEN_REPEAT <<  8) |
+				((opts->repeat_i & 0xF) <<  4) |
+				 (opts->repeat_n & 0xF) );
+	}
 }
 
 /* Compute TCP options for SYN packets. This is not the final
@@ -701,6 +709,7 @@ static unsigned int tcp_established_options(struct sock *sk, struct sk_buff *skb
 		opts->options |= OPTION_REPEAT;
 		opts->repeat_n = TCP_SKB_CB(skb)->repeat_n;
 		opts->repeat_i = TCP_SKB_CB(skb)->repeat_i;
+		size += TCPOLEN_REPEAT_ALIGNED;
 	}
 
 	eff_sacks = tp->rx_opt.num_sacks + tp->rx_opt.dsack;

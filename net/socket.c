@@ -1641,7 +1641,6 @@ SYSCALL_DEFINE5(send_repeat, int, fd, void __user *, buff, size_t, len, unsigned
 	msg.msg_flags = flags;
 	err = sock_sendmsg(sock, &msg);
 
-out_put:
 	fput_light(sock->file, fput_needed);
 out:
 	return err;
