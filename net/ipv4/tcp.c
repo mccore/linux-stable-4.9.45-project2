@@ -1188,9 +1188,12 @@ restart:
 			copy = max - skb->len;
 		}
 
-		// TODO: Don't use msg->msg_repeat directly here. Find a better place to set skb cb -> eor, 
-		// and let tcp_skb_can_collapse_to to do the work.
-		if (copy <= 0 || !tcp_skb_can_collapse_to(skb) || msg->msg_repeat) {
+		// Force terminate former segment if repeat is on
+		if (msg->msg_repeat) {
+			TCP_SKB_CB(skb)->eor = 1;
+		}
+
+		if (copy <= 0 || !tcp_skb_can_collapse_to(skb)) {
 			bool first_skb;
 
 new_segment:
@@ -1299,10 +1302,24 @@ new_segment:
 		TCP_SKB_CB(skb)->end_seq += copy;
 		tcp_skb_pcount_set(skb, 0);
 
+		// make clones for TCP_REPEAT
+		if (msg->msg_repeat) {
+			struct sk_buff *oskb = skb;
+			int i;
+			for (i=2; i<=msg->msg_repeat; ++i) {
+				skb = skb_clone(oskb, GFP_ATOMIC);
+				skb_entail(sk, skb);
+				tp->write_seq += copy;
+				TCP_SKB_CB(skb)->seq += (i-1)*copy;
+				TCP_SKB_CB(skb)->end_seq += i*copy;
+				TCP_SKB_CB(skb)->repeat_i = i;
+			}
+		}
+
 		copied += copy;
 		if (!msg_data_left(msg)) {
 			tcp_tx_timestamp(sk, sockc.tsflags, skb);
-			if (unlikely(flags & MSG_EOR))
+			if (unlikely(flags & MSG_EOR || msg->msg_repeat))
 				TCP_SKB_CB(skb)->eor = 1;
 			goto out;
 		}
