@@ -612,6 +612,13 @@ static unsigned int tcp_syn_options(struct sock *sk, struct sk_buff *skb,
 		}
 	}
 
+	if (skb && TCP_SKB_CB(skb)->repeat_n) {
+		opts->options |= OPTION_REPEAT;
+		opts->repeat_n = TCP_SKB_CB(skb)->repeat_n;
+		opts->repeat_i = TCP_SKB_CB(skb)->repeat_i;
+		remaining -= TCPOLEN_REPEAT_ALIGNED;
+	}
+
 	return MAX_TCP_OPTION_SPACE - remaining;
 }
 
