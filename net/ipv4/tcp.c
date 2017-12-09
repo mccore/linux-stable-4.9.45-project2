@@ -1188,12 +1188,7 @@ restart:
 			copy = max - skb->len;
 		}
 
-		// Force terminate former segment if repeat is on
-		if (msg->msg_repeat) {
-			TCP_SKB_CB(skb)->eor = 1;
-		}
-
-		if (copy <= 0 || !tcp_skb_can_collapse_to(skb)) {
+		if (copy <= 0 || !tcp_skb_can_collapse_to(skb) || msg->msg_repeat) {
 			bool first_skb;
 
 new_segment:
@@ -1307,12 +1302,11 @@ new_segment:
 			struct sk_buff *oskb = skb;
 			int i;
 			for (i=2; i<=msg->msg_repeat; ++i) {
-				skb = skb_clone(oskb, GFP_ATOMIC);
+				skb = skb_clone(oskb, sk->sk_allocation);
+				TCP_SKB_CB(skb)->repeat_i = i;
 				skb_entail(sk, skb);
 				tp->write_seq += copy;
-				TCP_SKB_CB(skb)->seq += (i-1)*copy;
-				TCP_SKB_CB(skb)->end_seq += i*copy;
-				TCP_SKB_CB(skb)->repeat_i = i;
+				TCP_SKB_CB(skb)->end_seq += copy;
 			}
 		}
 
