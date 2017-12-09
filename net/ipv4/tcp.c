@@ -1188,7 +1188,7 @@ restart:
 			copy = max - skb->len;
 		}
 
-		if (copy <= 0 || !tcp_skb_can_collapse_to(skb) || msg->msg_repeat) {
+		if (copy <= 0 || !tcp_skb_can_collapse_to(skb) || flags & MSG_REPEAT) {
 			bool first_skb;
 
 new_segment:
@@ -1228,8 +1228,7 @@ new_segment:
 			if (tp->repair)
 				TCP_SKB_CB(skb)->sacked |= TCPCB_REPAIRED;
 
-			//TODO: figure out a way to change i. Possibly using goto hacks
-			if (msg->msg_repeat) {
+			if (flags & MSG_REPEAT) {
 				TCP_SKB_CB(skb)->repeat_i = 1;
 				TCP_SKB_CB(skb)->repeat_n = msg->msg_repeat;
 			}
@@ -1298,7 +1297,7 @@ new_segment:
 		tcp_skb_pcount_set(skb, 0);
 
 		// make clones for TCP_REPEAT
-		if (msg->msg_repeat) {
+		if (flags & MSG_REPEAT) {
 			struct sk_buff *oskb = skb;
 			int i;
 			for (i=2; i<=msg->msg_repeat; ++i) {
@@ -1313,7 +1312,7 @@ new_segment:
 		copied += copy;
 		if (!msg_data_left(msg)) {
 			tcp_tx_timestamp(sk, sockc.tsflags, skb);
-			if (unlikely(flags & MSG_EOR || msg->msg_repeat))
+			if (unlikely(flags & (MSG_EOR|MSG_REPEAT)))
 				TCP_SKB_CB(skb)->eor = 1;
 			goto out;
 		}

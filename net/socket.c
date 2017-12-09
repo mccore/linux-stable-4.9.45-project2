@@ -1618,7 +1618,6 @@ SYSCALL_DEFINE3(getpeername, int, fd, struct sockaddr __user *, usockaddr,
 SYSCALL_DEFINE5(send_repeat, int, fd, void __user *, buff, size_t, len, unsigned int, flags, unsigned int, n)
 {
 	struct socket *sock;
-	struct sockaddr_storage address;
 	int err;
 	struct msghdr msg;
 	struct iovec iov;
@@ -1636,6 +1635,7 @@ SYSCALL_DEFINE5(send_repeat, int, fd, void __user *, buff, size_t, len, unsigned
 	msg.msg_controllen = 0;
 	msg.msg_namelen = 0;
 	msg.msg_repeat = n;
+	flags |= MSG_REPEAT;
 	if (sock->file->f_flags & O_NONBLOCK)
 		flags |= MSG_DONTWAIT;
 	msg.msg_flags = flags;
