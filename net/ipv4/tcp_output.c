@@ -416,7 +416,7 @@ static inline bool tcp_urg_mode(const struct tcp_sock *tp)
 #define OPTION_TS		(1 << 1)
 #define OPTION_MD5		(1 << 2)
 #define OPTION_WSCALE		(1 << 3)
-#define OPTION_REPEAT    (1 << 4)
+#define OPTION_REPEAT		(1 << 4)
 #define OPTION_FAST_OPEN_COOKIE	(1 << 8)
 
 struct tcp_out_options {
@@ -612,10 +612,11 @@ static unsigned int tcp_syn_options(struct sock *sk, struct sk_buff *skb,
 		}
 	}
 
-	if (skb && TCP_SKB_CB(skb)->repeat_n) {
+	// TODO: Add a setting in sysfs to configure support of TCP_REPEAT
+	if (1) {
 		opts->options |= OPTION_REPEAT;
-		opts->repeat_n = TCP_SKB_CB(skb)->repeat_n;
-		opts->repeat_i = TCP_SKB_CB(skb)->repeat_i;
+		opts->repeat_n = 1;
+		opts->repeat_i = 1;
 		remaining -= TCPOLEN_REPEAT_ALIGNED;
 	}
 
@@ -677,6 +678,14 @@ static unsigned int tcp_synack_options(struct request_sock *req,
 			opts->fastopen_cookie = foc;
 			remaining -= need;
 		}
+	}
+
+	// TODO: Add a setting in sysfs to configure support of TCP_REPEAT
+	if (1) {
+		opts->options |= OPTION_REPEAT;
+		opts->repeat_n = 1;
+		opts->repeat_i = 1;
+		remaining -= TCPOLEN_REPEAT_ALIGNED;
 	}
 
 	return MAX_TCP_OPTION_SPACE - remaining;

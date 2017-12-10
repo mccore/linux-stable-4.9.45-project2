@@ -6,6 +6,7 @@ cscope.po.out
 *.o
 *.s
 *.order
+*.builtin
 .version
 arch/x86/include/generated/
 include/config/
