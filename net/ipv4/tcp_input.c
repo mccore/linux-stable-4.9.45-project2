@@ -3863,6 +3863,13 @@ void tcp_parse_options(const struct sk_buff *skb,
 					ptr, th->syn, foc, false);
 				break;
 
+			case TCPOPT_REPEAT:
+				u8 repeat_val = *(__u8 *)ptr;
+				// Magic number that i and n both 1
+				if (repeat_val == 0x11)
+					opt_rx->repeat_ok = 1;
+				break;
+
 			case TCPOPT_EXP:
 				/* Fast Open option shares code 254 using a
 				 * 16 bits magic number.
@@ -6216,6 +6223,7 @@ static void tcp_openreq_init(struct request_sock *req,
 	tcp_rsk(req)->last_oow_ack_time = 0;
 	req->mss = rx_opt->mss_clamp;
 	req->ts_recent = rx_opt->saw_tstamp ? rx_opt->rcv_tsval : 0;
+	tcp_rsk(req)->repeat_ok = rx_opt->repeat_ok;
 	ireq->tstamp_ok = rx_opt->tstamp_ok;
 	ireq->sack_ok = rx_opt->sack_ok;
 	ireq->snd_wscale = rx_opt->snd_wscale;

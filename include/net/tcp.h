@@ -179,7 +179,7 @@ void tcp_time_wait(struct sock *sk, int state, int timeo);
 #define TCPOPT_TIMESTAMP	8	/* Better RTT estimations/PAWS */
 #define TCPOPT_MD5SIG		19	/* MD5 Signature (RFC2385) */
 #define TCPOPT_FASTOPEN		34	/* Fast open (RFC7413) */
-#define TCPOPT_REPEAT		254	/* Repeat RPI */
+#define TCPOPT_REPEAT		253	/* Repeat RPI */
 #define TCPOPT_EXP		254	/* Experimental */
 /* Magic number to be after the option value for sharing TCP
  * experimental options. See draft-ietf-tcpm-experimental-options-00.txt
@@ -761,7 +761,8 @@ struct tcp_skb_cb {
 #define TCPCB_RETRANS		(TCPCB_SACKED_RETRANS|TCPCB_EVER_RETRANS| \
 				TCPCB_REPAIRED)
 
-	__u8 repeat_i:4, repeat_n:4;
+	__u8		repeat_i:4,
+			repeat_n:4;
 	__u8		ip_dsfield;	/* IPv4 tos or IPv6 dsfield	*/
 	__u8		txstamp_ack:1,	/* Record TX timestamp for ack? */
 			eor:1,		/* Is skb MSG_EOR marked? */
