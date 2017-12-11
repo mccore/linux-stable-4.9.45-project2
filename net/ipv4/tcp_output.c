@@ -550,7 +550,7 @@ static void tcp_options_write(__be32 *ptr, struct tcp_sock *tp,
 
 	if (OPTION_REPEAT_RETURN & options) {
 		*ptr++ = htonl( (TCPOPT_NOP     << 24) |
-				(TCPOPT_REPEAT  <<  16) |
+				(TCPOPT_REPEAT_RETURN  <<  16) |
 				(TCPOLEN_REPEAT <<  8) |
 				((opts->repeat_i & 0xF) <<  4) |
 				 (opts->repeat_n & 0xF) );
