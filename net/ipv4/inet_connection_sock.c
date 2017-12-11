@@ -328,20 +328,22 @@ struct sock *inet_csk_accept(struct sock *sk, int flags, int *err)
 	req = reqsk_queue_remove(queue, sk);
 	newsk = req->sk;
 
-	if (sk->sk_protocol == IPPROTO_TCP &&
-	    tcp_rsk(req)->tfo_listener) {
-		spin_lock_bh(&queue->fastopenq.lock);
+	if (sk->sk_protocol == IPPROTO_TCP) {
+		tcp_sk(newsk)->repeat_ok = tcp_rsk(req)->repeat_ok;
 		if (tcp_rsk(req)->tfo_listener) {
-			/* We are still waiting for the final ACK from 3WHS
-			 * so can't free req now. Instead, we set req->sk to
-			 * NULL to signify that the child socket is taken
-			 * so reqsk_fastopen_remove() will free the req
-			 * when 3WHS finishes (or is aborted).
-			 */
-			req->sk = NULL;
-			req = NULL;
+			spin_lock_bh(&queue->fastopenq.lock);
+			if (tcp_rsk(req)->tfo_listener) {
+				/* We are still waiting for the final ACK from 3WHS
+				 * so can't free req now. Instead, we set req->sk to
+				 * NULL to signify that the child socket is taken
+				 * so reqsk_fastopen_remove() will free the req
+				 * when 3WHS finishes (or is aborted).
+				 */
+				req->sk = NULL;
+				req = NULL;
+			}
+			spin_unlock_bh(&queue->fastopenq.lock);
 		}
-		spin_unlock_bh(&queue->fastopenq.lock);
 	}
 out:
 	release_sock(sk);

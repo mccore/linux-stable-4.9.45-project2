@@ -1228,11 +1228,13 @@ new_segment:
 			if (tp->repair)
 				TCP_SKB_CB(skb)->sacked |= TCPCB_REPAIRED;
 
-			if (flags & MSG_REPEAT) {
+			if ((flags & MSG_REPEAT) && tp->repeat_ok) {
 				TCP_SKB_CB(skb)->repeat_i = 1;
 				TCP_SKB_CB(skb)->repeat_n = msg->msg_repeat;
 			}
 			else {
+				if (flags & MSG_REPEAT) 
+					printk("Can not send_repeat because receiver doesn't support\n");
 				TCP_SKB_CB(skb)->repeat_i = 0;
 				TCP_SKB_CB(skb)->repeat_n = 0;
 			}
