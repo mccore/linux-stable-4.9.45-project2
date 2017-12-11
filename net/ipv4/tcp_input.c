@@ -3864,9 +3864,8 @@ void tcp_parse_options(const struct sk_buff *skb,
 				break;
 
 			case TCPOPT_REPEAT:
-				u8 repeat_val = *(__u8 *)ptr;
 				// Magic number that i and n both 1
-				if (repeat_val == 0x11)
+				if (*(__u8 *)ptr == 0x11)
 					opt_rx->repeat_ok = 1;
 				break;
 

@@ -542,7 +542,7 @@ static void tcp_options_write(__be32 *ptr, struct tcp_sock *tp,
 
 	if (OPTION_REPEAT & options) {
 		*ptr++ = htonl( (TCPOPT_NOP     << 24) |
-				(TCPOPT_REPEAT  <<  16) |
+				(TCPOPT_REPEAT  << 16) |
 				(TCPOLEN_REPEAT <<  8) |
 				((opts->repeat_i & 0xF) <<  4) |
 				 (opts->repeat_n & 0xF) );
@@ -550,9 +550,9 @@ static void tcp_options_write(__be32 *ptr, struct tcp_sock *tp,
 
 	if (OPTION_REPEAT_RETURN & options) {
 		*ptr++ = htonl( (TCPOPT_NOP     << 24) |
-				(TCPOPT_REPEAT_RETURN  <<  16) |
-				(TCPOLEN_REPEAT <<  8) |
-				((opts->repeat_i & 0xF) <<  4) |
+				(TCPOPT_REPEAT_RETURN  << 16) |
+				(TCPOLEN_REPEAT_RETURN <<  8) |
+				((opts->repeat_i & 0xF) << 4) |
 				 (opts->repeat_n & 0xF) );
 	}
 
@@ -625,6 +625,7 @@ static unsigned int tcp_syn_options(struct sock *sk, struct sk_buff *skb,
 
 	// TODO: Add a setting in sysfs to configure support of TCP_REPEAT
 	if (1) {
+		printk("Send SYN with REPEAT.\n");
 		opts->options |= OPTION_REPEAT;
 		opts->repeat_n = 1;
 		opts->repeat_i = 1;
@@ -691,12 +692,12 @@ static unsigned int tcp_synack_options(struct request_sock *req,
 		}
 	}
 
-	// TODO: Add a setting in sysfs to configure support of TCP_REPEAT
-	if (1) {
-		opts->options |= OPTION_REPEAT;
+	if (tcp_rsk(req)->repeat_ok) {
+		printk("Received SYN with REPEAT, send SYNACK with REPEAT_RETURN\n");
+		opts->options |= OPTION_REPEAT_RETURN;
 		opts->repeat_n = 1;
 		opts->repeat_i = 1;
-		remaining -= TCPOLEN_REPEAT_ALIGNED;
+		remaining -= TCPOLEN_REPEAT_RETURN_ALIGNED;
 	}
 
 	return MAX_TCP_OPTION_SPACE - remaining;

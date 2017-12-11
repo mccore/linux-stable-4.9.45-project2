@@ -1342,6 +1342,10 @@ struct sock *tcp_v4_syn_recv_sock(const struct sock *sk, struct sk_buff *skb,
 		sk_nocaps_add(newsk, NETIF_F_GSO_MASK);
 	}
 #endif
+	newtp->repeat_ok = tcp_rsk(req)->repeat_ok;
+	if (newtp->repeat_ok) {
+		printk("TCP repeat is enabled on socket.\n");
+	}
 
 	if (__inet_inherit_port(sk, newsk) < 0)
 		goto put_and_exit;
