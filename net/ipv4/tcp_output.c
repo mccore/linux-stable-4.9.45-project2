@@ -417,6 +417,7 @@ static inline bool tcp_urg_mode(const struct tcp_sock *tp)
 #define OPTION_MD5		(1 << 2)
 #define OPTION_WSCALE		(1 << 3)
 #define OPTION_REPEAT    (1 << 4)
+#define OPTION_REPEAT_RETURN    (1 << 4)
 #define OPTION_FAST_OPEN_COOKIE	(1 << 8)
 
 struct tcp_out_options {
@@ -428,6 +429,7 @@ struct tcp_out_options {
 	__u8 *hash_location;	/* temporary pointer, overloaded */
 	__u32 tsval, tsecr;	/* need to include OPTION_TS */
 	__u8 repeat_i:4, repeat_n:4;
+	__u8 repeat_return;
 	struct tcp_fastopen_cookie *fastopen_cookie;	/* Fast open cookie */
 };
 
@@ -545,6 +547,15 @@ static void tcp_options_write(__be32 *ptr, struct tcp_sock *tp,
 				((opts->repeat_i & 0xF) <<  4) |
 				 (opts->repeat_n & 0xF) );
 	}
+
+	if (OPTION_REPEAT_RETURN & options) {
+		*ptr++ = htonl( (TCPOPT_NOP     << 24) |
+				(TCPOPT_REPEAT  <<  16) |
+				(TCPOLEN_REPEAT <<  8) |
+				((opts->repeat_i & 0xF) <<  4) |
+				 (opts->repeat_n & 0xF) );
+	}
+
 }
 
 /* Compute TCP options for SYN packets. This is not the final
